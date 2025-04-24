@@ -1,16 +1,17 @@
 import axios from "axios"
-import { auth } from '@/client/sdk'
+import { AuthService } from '@/client/sdk'
+import { auth } from "@/client/types"
 
-const loginJWT = async (email: string, password: string) => {
+const loginJWT = async (formData: auth.LoginAccessTokenData) => {
     try {
-        const response = await auth.login(email, password)
-        if (response.data?.userData) {
-            const { userData, access, refresh } = response.data
+        const response = await AuthService.login(formData)
+        if (response.userData) {
+            const { userData, access_token, refresh_token } = response
 
-            localStorage.setItem("accessToken", access)
-            localStorage.setItem("refreshToken", refresh)
+            localStorage.setItem("accessToken", access_token)
+            localStorage.setItem("refreshToken", refresh_token)
             localStorage.setItem("userInfo", JSON.stringify(userData))
-            setBearer(access)
+            setBearer(access_token)
         }
         return response
     } catch (error: any) {
@@ -19,8 +20,20 @@ const loginJWT = async (email: string, password: string) => {
 }
 
 const fetchAccessToken = async () => {
-    const response = await auth.refreshToken()
-    const access = response.data.access
+    const refreshToken = localStorage.getItem("refreshToken")
+
+    if (!refreshToken) {
+        throw new Error("No refresh token found")
+    }
+
+    const refreshData: auth.LoginRefreshTokenData = { 
+        formData: { 
+            refresh: refreshToken
+        } 
+    }
+
+    const response = await AuthService.refresh(refreshData)
+    const access = response.access_token
 
     localStorage.setItem("accessToken", access)
     setBearer(access)

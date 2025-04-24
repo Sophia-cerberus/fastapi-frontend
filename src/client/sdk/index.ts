@@ -1,1 +1,1 @@
-export * as auth from './gen/auth'
+export { AuthService } from './auth.gen'
