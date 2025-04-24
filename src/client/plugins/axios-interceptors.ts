@@ -1,6 +1,6 @@
-import axios, { type AxiosInstance } from "axios"
+import type { AxiosInstance } from "axios"
 import router from "@/routes"
-import store from "@/store"
+import { useAuthStore } from "@/stores"
 import { OpenAPI } from "@/client/core/OpenAPI"
 
 let isAlreadyFetchingAccessToken = false
@@ -32,9 +32,10 @@ export const setupAxiosInterceptors = (axiosInstance: AxiosInstance) => {
         async error => {
             const { config, response } = error
             const originalRequest = config
+            const authStore = useAuthStore()
 
             if (response?.status === 401) {
-                localStorage.clear()
+                authStore.logout()
                 router.replace({
                     path: "/sign-in",
                     query: { redirect: router.currentRoute.value.fullPath },
@@ -45,8 +46,8 @@ export const setupAxiosInterceptors = (axiosInstance: AxiosInstance) => {
                 if (!isAlreadyFetchingAccessToken) {
                     isAlreadyFetchingAccessToken = true
                     try {
-                        const res = await store.dispatch("auth/fetchAccessToken")
-                        onAccessTokenFetched(res.data.access)
+                        const accessToken = await authStore.fetchAccessToken()
+                        onAccessTokenFetched(accessToken)
                     } finally {
                         isAlreadyFetchingAccessToken = false
                     }
@@ -55,7 +56,7 @@ export const setupAxiosInterceptors = (axiosInstance: AxiosInstance) => {
                 return new Promise(resolve => {
                     addSubscriber((token: string) => {
                         originalRequest.headers.Authentication = `Bearer ${token}`
-                        resolve(axios(originalRequest))
+                        resolve(axiosInstance(originalRequest))
                     })
                 })
             }

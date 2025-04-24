@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import themeConfig from '@/theme/theme.config'
+import themeConfig from '@/theme/config'
 import jwt         from '@/http/requests/auth/jwt/index.js'
 
 export default {
