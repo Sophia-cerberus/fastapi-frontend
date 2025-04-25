@@ -5,9 +5,9 @@ import actions from './actions'
 
 
 const useAuthStore = defineStore("auth", {
-    state,
-    getters,
-    actions
+  state,
+  getters,
+  actions
 })
 
 export { useAuthStore }

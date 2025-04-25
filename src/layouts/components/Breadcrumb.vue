@@ -1,5 +1,5 @@
 <template functional>
-    <div class="vx-breadcrumb" :class="data.staticClass">
+    <div class="breadcrumb" :class="data.staticClass">
         <ul class="flex flex-wrap items-center">
             <li class="inline-flex items-end">
                 <router-link to="/">
